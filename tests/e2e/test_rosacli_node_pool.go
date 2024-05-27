@@ -952,4 +952,32 @@ var _ = Describe("Edit nodepool",
 				Expect(err).To(HaveOccurred())
 				Expect(rosaClient.Parser.TextData.Input(output).Parse().Tip()).To(ContainSubstring("ERR: invalid tag format for tag '[#.bar]'. Expected tag format: 'key:value'"))
 			})
+
+		It("can scale up/down machinepool on HCP - [id:60278]",
+			labels.High, labels.Day2, labels.NonClassicCluster,
+			func() {
+				By("Check the initial quota cost")
+				// TODO
+
+				By("Add a node pool 'np-1' with 2-m5.2xlarge nodes on the cluster and check the quota cost.")
+				// TODO
+
+				By("Add an autoscaling node pool ''np-2'' with 2~4 m5.2xlarge nodes on the cluster.")
+				//TODO
+
+				By("Scaling up the node pool 'np-1' to 3, and checking the quota cost.")
+				// TODO
+
+				By("Scaling down the nodepool 'np-1' to 0 ")
+				// TODO
+
+				By("Delete the node pool 'np-1', and check the quota cost.	")
+				// TODO
+
+				By("Scaling down the node pool 'np-2' to 1-3, and checking the quota cost.")
+				// TODO
+
+				By("Scaling down the node pool 'np-2' to 0-3")
+				// TODO
+			})
 	})
