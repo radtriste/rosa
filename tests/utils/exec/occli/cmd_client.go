@@ -17,29 +17,34 @@ type Client struct {
 	KubePath string
 }
 
-func NewOCClient(kubePath ...string) *Client {
-	ocClient := &Client{}
+func NewOCClient(kubePath ...string) (ocClient *Client, err error) {
 	if len(kubePath) > 0 {
 		ocClient = &Client{
 			KubePath: kubePath[0],
 		}
 	} else {
-		userValues, err := helper.ReadFileContent(config.Test.ClusterIDPAdminUsernamePassword)
-		if err == nil {
-			values := strings.Split(userValues, ":")
-			user := values[0]
-			password := values[1]
-			kubeconfigFile, err := LoginToKubeconfigFile(user, password, config.Test.ArtifactDir)
-			if err != nil {
-				log.Logger.Errorf("Failed to get kubeconfig from environment: %s", err)
-			} else {
-				ocClient = &Client{
-					KubePath: kubeconfigFile,
-				}
+		var userValues string
+		userValues, err = helper.ReadFileContent(config.Test.ClusterIDPAdminUsernamePassword)
+		if err != nil {
+			return
+		}
+
+		values := strings.Split(userValues, ":")
+		user := values[0]
+		password := values[1]
+
+		var kubeconfigFile string
+		kubeconfigFile, err = LoginToKubeconfigFile(user, password)
+		if err != nil {
+			log.Logger.Errorf("Failed to get kubeconfig from environment: %s", err)
+			return
+		} else {
+			ocClient = &Client{
+				KubePath: kubeconfigFile,
 			}
 		}
 	}
-	return ocClient
+	return ocClient, nil
 }
 
 func (ocClient Client) Run(cmd string, retryTimes int, pipeCommands ...string) (stdout string, err error) {
@@ -80,7 +85,7 @@ func RunCMD(cmd string) (stdout string, stderr string, err error) {
 	return
 }
 
-func LoginToKubeconfigFile(user string, password string, outputDir string) (kubeconfigFile string, err error) {
+func LoginToKubeconfigFile(user string, password string) (kubeconfigFile string, err error) {
 	// Refer to OCM-9183
 	retryTimes := 10
 	apiUrl, err := helper.ReadFileContent(config.Test.APIURLFile)
@@ -89,7 +94,7 @@ func LoginToKubeconfigFile(user string, password string, outputDir string) (kube
 		return
 	}
 
-	f, err := os.CreateTemp(outputDir, "temp-")
+	f, err := os.CreateTemp(config.Test.ArtifactDir, "temp-")
 	if err != nil {
 		log.Logger.Errorf("%s", err)
 		return

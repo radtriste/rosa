@@ -112,7 +112,8 @@ var _ = Describe("ROSA CLI Test", func() {
 var _ = Describe("OC CLI Test", func() {
 	Describe("Test created kubeconfig", func() {
 		It("Test", func() {
-			ocClient := occli.NewOCClient()
+			ocClient, err := occli.NewOCClient()
+			Expect(err).ShouldNot(HaveOccurred())
 			stdout, err := ocClient.Run("oc project dedicated-admin", 3)
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(stdout).To(ContainSubstring("Now using project \"dedicated-admin\""))
